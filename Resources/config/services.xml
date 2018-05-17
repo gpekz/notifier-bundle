@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <service id="gpekz_notifier.mailer" class="Gpekz\NotifierBundle\Mailer\Mailer" public="false">
+            <argument type="service" id="swiftmailer.mailer" />
+        </service>
+        <service id="Gpekz\NotifierBundle\Mailer\MailerInterface" alias="gpekz_notifier.mailer" />
+
+        <service id="gpekz_notifier.notifier.abstract" class="Gpekz\NotifierBundle\Notifier\AbstractNotifier" abstract="true" public="false">
+            <argument type="service" id="gpekz_notifier.mailer" />
+            <argument type="service" id="templating" />
+            <argument type="service" id="event_dispatcher" />
+        </service>
+
+    </services>
+</container>
