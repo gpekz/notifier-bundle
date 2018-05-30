@@ -3,7 +3,7 @@
 namespace Gpekz\NotifierBundle\Exception;
 
 /**
- * Mailer.
+ * MailerException.
  *
  * @author Geoffrey Pécro <geoffrey.pecro@gmail.com>
  */

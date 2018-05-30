@@ -7,6 +7,7 @@ use Gpekz\NotifierBundle\Event\FailureEvent;
 use Gpekz\NotifierBundle\Event\NotifierEvent;
 use Gpekz\NotifierBundle\Exception\MailerException;
 use Gpekz\NotifierBundle\Mailer\MailerInterface;
+use Gpekz\NotifierBundle\Message\Message;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -42,21 +43,23 @@ abstract class AbstractNotifier implements NotifierInterface
         $this->configureOptions($resolver);
         $resolvedOptions = $resolver->resolve($options);
 
-        $body = $this->getBody($resolvedOptions);
-        $from = $this->getFrom();
-        $name = $this->getName();
-        $recipients = $this->getRecipients($resolvedOptions);
-        $subject = $this->getSubject($resolvedOptions);
-        $type = $this->getContentType();
-        $cc = $this->getCc($resolvedOptions);
-        $bcc = $this->getBcc($resolvedOptions);
-        $reply = $this->getReplyTo($resolvedOptions);
-        $attachments = $this->getAttachments($resolvedOptions);
+        $message = (new Message())
+            ->setName($this->getName())
+            ->setFrom($this->getFrom())
+            ->setSubject($this->getSubject($resolvedOptions))
+            ->setBody($this->getBody($resolvedOptions))
+            ->setType($this->getContentType())
+            ->setRecipients($this->getRecipients($resolvedOptions))
+            ->setCc($this->getCc($resolvedOptions))
+            ->setBcc($this->getBcc($resolvedOptions))
+            ->setReply($this->getReplyTo($resolvedOptions))
+            ->setAttachments($this->getAttachments($resolvedOptions))
+        ;
 
         $this->dispatcher->dispatch(Events::PRE_SEND, new NotifierEvent($this, $resolvedOptions));
 
         try {
-            $this->mailer->send($from, $name, $recipients, $subject, $body, $type, $cc, $bcc, $reply, $attachments);
+            $this->mailer->send($message);
         } catch (MailerException $exception) {
             $this->dispatcher->dispatch(Events::FAILURE, new FailureEvent($this, $exception, $resolvedOptions));
 
