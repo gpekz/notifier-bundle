@@ -15,7 +15,7 @@ interface MailerInterface
     /**
      * @throws MailerException
      */
-    public function send(Message $message, string $type);
+    public function send(Message $message, string $type): void;
 
     public function supports(string $type): bool;
 }

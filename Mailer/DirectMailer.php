@@ -22,7 +22,7 @@ class DirectMailer implements MailerInterface
         $this->mailer = $mailer;
     }
 
-    public function send(Message $message, string $type)
+    public function send(Message $message, string $type): void
     {
         $swiftMessage = (new \Swift_Message())
             ->setFrom($message->getFrom(), $message->getName())

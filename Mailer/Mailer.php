@@ -28,7 +28,7 @@ class Mailer implements MailerInterface
         }
     }
 
-    public function send(Message $message, string $type)
+    public function send(Message $message, string $type): void
     {
         $this->getMailer($type)->send($message, $type);
     }
