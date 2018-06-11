@@ -3,6 +3,7 @@
 namespace Gpekz\NotifierBundle\Mailer;
 
 use Gpekz\NotifierBundle\Exception\MailerException;
+use Gpekz\NotifierBundle\Message\Message;
 
 /**
  * MailerInterface.
@@ -14,5 +15,7 @@ interface MailerInterface
     /**
      * @throws MailerException
      */
-    public function send(string $from, string $name, array $recipients, string $subject, string $body, string $type = 'text/html', array $cc = [], array $bcc = [], array $reply = [], array $attachments = []): void;
+    public function send(Message $message, string $type);
+
+    public function supports(string $type): bool;
 }

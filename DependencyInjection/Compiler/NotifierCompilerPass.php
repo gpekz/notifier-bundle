@@ -5,6 +5,11 @@ namespace Gpekz\NotifierBundle\DependencyInjection\Compiler;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * NotifierCompilerPass.
+ *
+ * @author Geoffrey Pécro <geoffrey.pecro@gmail.com>
+ */
 class NotifierCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)

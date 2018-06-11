@@ -2,6 +2,7 @@
 
 namespace Gpekz\NotifierBundle\DependencyInjection;
 
+use Gpekz\NotifierBundle\Mailer\MailerInterface;
 use Gpekz\NotifierBundle\Notifier\NotifierInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -27,6 +28,7 @@ class GpekzNotifierExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->registerForAutoconfiguration(NotifierInterface::class)->addTag('gpekz.notifier');
+        $container->registerForAutoconfiguration(MailerInterface::class)->addTag('gpekz.mailer');
 
         if (isset($config['default'])) {
             if (isset($config['default']['from_email'])) {

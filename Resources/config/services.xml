@@ -6,9 +6,15 @@
     <services>
 
         <service id="gpekz_notifier.mailer" class="Gpekz\NotifierBundle\Mailer\Mailer" public="false">
-            <argument type="service" id="swiftmailer.mailer" />
+            <argument type="tagged" tag="gpekz.mailer" />
         </service>
         <service id="Gpekz\NotifierBundle\Mailer\MailerInterface" alias="gpekz_notifier.mailer" />
+
+        <service id="gpekz_notifier.mailer.direct" class="Gpekz\NotifierBundle\Mailer\DirectMailer" public="false">
+            <argument type="service" id="swiftmailer.mailer" />
+
+            <tag name="gpekz.mailer" />
+        </service>
 
         <service id="gpekz_notifier.notifier.abstract" class="Gpekz\NotifierBundle\Notifier\AbstractNotifier" abstract="true" public="false">
             <argument type="service" id="gpekz_notifier.mailer" />

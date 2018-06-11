@@ -3,6 +3,7 @@
 namespace Gpekz\NotifierBundle\Mailer;
 
 use Gpekz\NotifierBundle\Exception\MailerException;
+use Gpekz\NotifierBundle\Message\Message;
 
 /**
  * Mailer.
@@ -11,49 +12,52 @@ use Gpekz\NotifierBundle\Exception\MailerException;
  */
 class Mailer implements MailerInterface
 {
-    private const TIME_FOR_NEXT_EMAIL = 72000;
+    private $mailers = [];
+    private $cache = [];
 
-    private $mailer;
-
-    public function __construct(\Swift_Mailer $mailer)
+    public function __construct(iterable $mailers = [])
     {
-        $this->mailer = $mailer;
+        foreach ($mailers as $mailer) {
+            if (!$mailer instanceof MailerInterface) {
+                throw new \InvalidArgumentException(\sprintf('The mailer %s must implement interface', get_class($mailer), MailerInterface::class));
+            }
+
+            if (!in_array($mailer, $this->mailers)) {
+                $this->mailers[] = $mailer;
+            }
+        }
     }
 
-    public function send(string $from, string $name, array $recipients, string $subject, string $body, string $type = 'text/html', array $cc = [], array $bcc = [], array $reply = [], array $attachments = []): void
+    public function send(Message $message, string $type)
     {
-        $message = (new \Swift_Message())
-            ->setFrom($from, $name)
-            ->setTo($recipients)
-            ->setSubject($subject)
-            ->setBody($body)
-            ->setContentType($type)
-        ;
+        $this->getMailer($type)->send($message, $type);
+    }
 
-        if (!empty($cc)) {
-            $message->setCc($cc);
-        }
-
-        if (!empty($bcc)) {
-            $message->setBcc($bcc);
-        }
-
-        if (!empty($reply)) {
-            $message->setReplyTo($reply);
-        }
-
-        foreach ($attachments as $attachment) {
-            $message->attach(\Swift_Attachment::fromPath($attachment));
-        }
-
+    public function supports(string $type): bool
+    {
         try {
-            $this->mailer->getTransport()->start();
-            $this->mailer->send($message);
-            $this->mailer->getTransport()->stop();
-        } catch (\Exception $exception) {
-            throw new MailerException($exception->getMessage());
+            $this->getMailer($type);
+        } catch (MailerException $exception) {
+            return false;
         }
 
-        \usleep(self::TIME_FOR_NEXT_EMAIL);
+        return true;
+    }
+
+    public function getMailer(string $type): MailerInterface
+    {
+        if (isset($this->cache[$type])) {
+            return $this->cache[$type];
+        }
+
+        foreach ($this->mailers as $mailer) {
+            if ($mailer->supports($type)) {
+                $this->cache[$type] = $mailer;
+
+                return $mailer;
+            }
+        }
+
+        throw new MailerException(\sprintf('No mailer found for type %s', $type));
     }
 }
